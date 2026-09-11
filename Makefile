@@ -305,9 +305,9 @@ test.tools:
 # -------------------------------------------------------------------------------
 
 CORERULESET_VERSION ?= v4.28.0
-LOCALRULES ?= $(shell pwd)/tmp/rules
-CORERULESET_DIR ?= $(shell pwd)/tmp/coreruleset
-TMP_DOWNLOAD_DIR ?= $(shell pwd)/tmp/download
+LOCALRULES ?= $(CURDIR)/tmp/rules
+CORERULESET_DIR ?= $(CURDIR)/tmp/coreruleset
+TMP_DOWNLOAD_DIR ?= $(CURDIR)/tmp/download
 NAMESPACE ?= default
 CORERULESET_EXTRA_FLAGS ?=
 
@@ -340,7 +340,7 @@ coraza.coreruleset: coraza.generaterules
 # Coraza Coreruleset - Conformance test
 # -------------------------------------------------------------------------------
 CONFORMANCE_EXTRA_FLAGS ?=
-FTW_OVERRIDES ?= $(shell pwd)/test/conformance/.ftw-overrides.yml
+FTW_OVERRIDES ?= $(CURDIR)/test/conformance/.ftw-overrides.yml
 
 # Verifies generator output for pinned CRS (CORERULESET_VERSION + --include-test-rule + full CRS for parity) against tools/corerulesetgen/testdata/coreruleset_parity.sha256.
 # Conformance needs --ignore-unsupported-rules=none so output matches the pre-exclusion golden hash and FTW exercises the full rule set.
@@ -351,7 +351,7 @@ coreruleset.verify-parity:
 
 .PHONY: test.conformance
 test.conformance: coreruleset.verify-parity
-	cd test/conformance &&  $(CONFORMANCE_EXTRA_FLAGS) FTW_CONFIG=$(shell pwd)/test/conformance/ftw.yml FTW_OVERRIDES=$(FTW_OVERRIDES) TESTMANIFESTS_PATH=$(CORERULESET_DIR)/tests/tests RULESET_PATH=$(LOCALRULES)/rules.yaml KIND_CLUSTER_NAME=${KIND_CLUSTER_NAME} ISTIO_VERSION=${ISTIO_VERSION} ISTIO_GATEWAY_REVISION=${ISTIO_GATEWAY_REVISION} go test -tags=conformance ./... -v
+	cd test/conformance && $(CONFORMANCE_EXTRA_FLAGS) FTW_CONFIG=$(CURDIR)/test/conformance/ftw.yml FTW_OVERRIDES=$(FTW_OVERRIDES) TESTMANIFESTS_PATH=$(CORERULESET_DIR)/tests/tests RULESET_PATH=$(LOCALRULES)/rules.yaml KIND_CLUSTER_NAME=${KIND_CLUSTER_NAME} ISTIO_VERSION=${ISTIO_VERSION} ISTIO_GATEWAY_REVISION=${ISTIO_GATEWAY_REVISION} go test -tags=conformance ./... -v
 
 # -------------------------------------------------------------------------------
 # OLM Bundle
@@ -458,7 +458,7 @@ helm.lint: ## Lint the Helm chart
 
 .PHONY: helm.template
 helm.template: ## Render the Helm chart templates locally
-	helm template coraza-kubernetes-operator $(HELM_CHART_DIR) --namespace coraza-system
+	helm template $(HELM_RELEASE_NAME) $(HELM_CHART_DIR) --namespace $(HELM_RELEASE_NAMESPACE)
 
 .PHONY: helm.sync-crds
 helm.sync-crds: manifests ## Copy generated CRDs into the Helm chart
@@ -682,7 +682,7 @@ docs.chroma: docs.image ## Regenerate Chroma syntax highlighting CSS for light a
 # Dependencies
 # -------------------------------------------------------------------------------
 
-LOCALBIN ?= $(shell pwd)/bin
+LOCALBIN ?= $(CURDIR)/bin
 $(LOCALBIN):
 	mkdir -p "$(LOCALBIN)"
 
